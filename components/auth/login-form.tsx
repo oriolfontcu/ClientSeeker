@@ -47,7 +47,7 @@ export const LoginForm = () => {
                     setSuccess(data.success);
                 })
         });
-    }
+    };
 
     return (
         <CardWrapper
