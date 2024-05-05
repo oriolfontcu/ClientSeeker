@@ -21,7 +21,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   callbacks: {
     async signIn({ user, account }) {
+      console.log({
+        user,
+        account,
+      })
       if (account?.provider !== "credentials") return true
+
+      if (!user?.id) return false;
 
       const existingUser = await getUserById(user.id);
 
@@ -32,7 +38,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return true
     },    
     async session({ token, session }){
-      console.log({ sessionToken: token })
 
       if (token.sub && session.user){
           session.user.id = token.sub
