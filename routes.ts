@@ -11,7 +11,7 @@ export const publicRoutes = [
 
 /**
  * An array of routes that are accesible to the public
- * Theses routes will redirect logged in users to /settings
+ * Theses routes will redirect logged in users to /dashboard
  * @type {string[]}
  */
 export const authRoutes = [
