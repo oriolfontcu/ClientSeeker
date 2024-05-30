@@ -2,16 +2,19 @@
 
 import { logout } from "@/actions/logout";
 import { Button } from "@/components/ui/button";
+import BusinessesDataTable from "../_components/BusinessesDataTable";
 
 const DashboardPage = () => {
+
+    const mapsFetch = fetch("")
     
     const onClick = () => {
         logout();
     }
     return ( 
-        <section className="h-full w-full">
-            
-        </section>
+        <main className="w-full h-full">
+            <BusinessesDataTable />
+        </main>
      );
 }
  

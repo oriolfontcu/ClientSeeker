@@ -23,6 +23,10 @@ export const authRoutes = [
 ]
 
 
+export const premiumRoutes = [
+    "/dashboard",
+]
+
 /**
  * The prefix for API authentication routes
  * Routes that start with these prefix are used for API authentication purposes
