@@ -10,9 +10,7 @@ const DashboardPage = () => {
     
     return ( 
             <main className="w-full h-full">
-                <MembershipGate allowedMembership={UserMembership.PREMIUM}>
-                    <BusinessesDataTable />
-                </MembershipGate>
+                <BusinessesDataTable />
             </main>
      );
 }

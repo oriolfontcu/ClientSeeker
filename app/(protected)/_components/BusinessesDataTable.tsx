@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/input';
 import { CheckIcon, Cross1Icon } from '@radix-ui/react-icons';
 import { Button } from '@/components/ui/button';
 
-interface PlaceDetails {
+export interface PlaceDetails {
   name: string;
   formatted_address: string;
   international_phone_number: string;
