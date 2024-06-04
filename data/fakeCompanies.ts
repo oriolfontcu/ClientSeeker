@@ -4,7 +4,7 @@ export const fakeCompanies: PlaceDetails[] = [
   {
     name: "Fake Company 1",
     formatted_address: "123 Fake Street, Faketown",
-    international_phone_number: "123-456-7890",
+    formatted_phone_number: "123-456-7890",
     rating: undefined,
     user_ratings_total: undefined,
     potentialClientRating: 'Low',
@@ -12,7 +12,7 @@ export const fakeCompanies: PlaceDetails[] = [
   {
     name: "Fake Company 2",
     formatted_address: "456 Fiction Avenue, Imaginaria",
-    international_phone_number: "987-654-3210",
+    formatted_phone_number: "987-654-3210",
     rating: undefined,
     user_ratings_total: undefined,
     potentialClientRating: 'Low',
@@ -20,16 +20,15 @@ export const fakeCompanies: PlaceDetails[] = [
   {
     name: "Dummy Business 3",
     formatted_address: "789 Mockingbird Lane, Nowhere",
-    international_phone_number: "555-123-4567",  
+    formatted_phone_number: "555-123-4567",  
     rating: undefined,
     user_ratings_total: undefined,
     potentialClientRating: 'Low',
   },
-  // Añade 12 empresas ficticias más aquí
   {
     name: "Placeholder Inc.",
     formatted_address: "101 Placeholder Blvd, Somewhere",
-    international_phone_number: "800-555-1212",
+    formatted_phone_number: "800-555-1212",
     rating: undefined,
     user_ratings_total: undefined,
     potentialClientRating: 'Low',
@@ -37,7 +36,7 @@ export const fakeCompanies: PlaceDetails[] = [
   {
     name: "Test Enterprises",
     formatted_address: "202 Test Drive, Testville",
-    international_phone_number: "404-555-1313",
+    formatted_phone_number: "404-555-1313",
     rating: undefined,
     user_ratings_total: undefined,
     potentialClientRating: 'Low',
@@ -45,7 +44,7 @@ export const fakeCompanies: PlaceDetails[] = [
   {
     name: "Sample Co.",
     formatted_address: "303 Sample Street, Example City",
-    international_phone_number: "303-555-1414",
+    formatted_phone_number: "303-555-1414",
     rating: undefined,
     user_ratings_total: undefined,
     potentialClientRating: 'Low',
@@ -53,7 +52,7 @@ export const fakeCompanies: PlaceDetails[] = [
   {
     name: "Demo LLC",
     formatted_address: "404 Demo Lane, Demo Town",
-    international_phone_number: "606-555-1515",
+    formatted_phone_number: "606-555-1515",
     rating: undefined,
     user_ratings_total: undefined,
     potentialClientRating: 'Low',
@@ -61,7 +60,7 @@ export const fakeCompanies: PlaceDetails[] = [
   {
     name: "Mock Corporation",
     formatted_address: "505 Mock Street, Mock City",
-    international_phone_number: "707-555-1616",
+    formatted_phone_number: "707-555-1616",
     rating: undefined,
     user_ratings_total: undefined,
     potentialClientRating: 'Low',
@@ -69,7 +68,7 @@ export const fakeCompanies: PlaceDetails[] = [
   {
     name: "Prototype Partners",
     formatted_address: "606 Prototype Parkway, Prototype City",
-    international_phone_number: "808-555-1717",
+    formatted_phone_number: "808-555-1717",
     rating: undefined,
     user_ratings_total: undefined,
     potentialClientRating: 'Low',
@@ -77,7 +76,7 @@ export const fakeCompanies: PlaceDetails[] = [
   {
     name: "Beta Testing Ltd.",
     formatted_address: "707 Beta Road, Beta Town",
-    international_phone_number: "909-555-1818",   
+    formatted_phone_number: "909-555-1818",   
     rating: undefined,
     user_ratings_total: undefined,
     potentialClientRating: 'Low',
@@ -85,7 +84,7 @@ export const fakeCompanies: PlaceDetails[] = [
   {
     name: "Alpha Industries",
     formatted_address: "808 Alpha Avenue, Alpha City",
-    international_phone_number: "100-555-1919",
+    formatted_phone_number: "100-555-1919",
     rating: undefined,
     user_ratings_total: undefined,
     potentialClientRating: 'Low',
@@ -93,7 +92,7 @@ export const fakeCompanies: PlaceDetails[] = [
   {
     name: "Imaginary Solutions",
     formatted_address: "909 Imaginary Blvd, Imaginary Land",
-    international_phone_number: "111-555-2020",
+    formatted_phone_number: "111-555-2020",
     rating: undefined,
     user_ratings_total: undefined,
     potentialClientRating: 'Low',
@@ -101,7 +100,7 @@ export const fakeCompanies: PlaceDetails[] = [
   {
     name: "Fictitious Enterprises",
     formatted_address: "1010 Fictional Street, Fantasy Town",
-    international_phone_number: "222-555-2121",
+    formatted_phone_number: "222-555-2121",
     rating: undefined,
     user_ratings_total: undefined,
     potentialClientRating: 'Low',
@@ -109,7 +108,7 @@ export const fakeCompanies: PlaceDetails[] = [
   {
     name: "Nonexistent Corp",
     formatted_address: "1111 Nowhere Road, Nowhere City",
-    international_phone_number: "333-555-2222",
+    formatted_phone_number: "333-555-2222",
     rating: undefined,
     user_ratings_total: undefined,
     potentialClientRating: 'Low',
@@ -117,7 +116,7 @@ export const fakeCompanies: PlaceDetails[] = [
   {
     name: "Invisible Industries",
     formatted_address: "1212 Invisible Ave, Imaginary Place",
-    international_phone_number: "444-555-2323",
+    formatted_phone_number: "444-555-2323",
     rating: undefined,
     user_ratings_total: undefined,
     potentialClientRating: 'Low',

@@ -14,13 +14,14 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
-import { CheckIcon, Cross1Icon } from '@radix-ui/react-icons';
 import { Button } from '@/components/ui/button';
+
+import { Loader2 } from "lucide-react"
 
 export interface PlaceDetails {
   name: string;
   formatted_address: string;
-  international_phone_number: string;
+  formatted_phone_number: string;
   website?: string;
   rating?: number;
   user_ratings_total?: number;
@@ -80,7 +81,7 @@ const BusinessesDataTable = () => {
         header: 'Address',
       },
       {
-        accessorKey: 'international_phone_number',
+        accessorKey: 'formatted_phone_number',
         header: 'Phone',
       },
       {
@@ -142,7 +143,7 @@ const BusinessesDataTable = () => {
             onClick={fetchBusinessesByLocationAndSector}
             disabled={isLoading}
           >
-            {isLoading ? 'Loading...' : 'Get Businesses'}
+            {isLoading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading...</> : 'Get Businesses'}
           </Button>
         </div>
         {error && <p className="text-red-500">{error}</p>}

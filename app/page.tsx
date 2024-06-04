@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 import { LoginButton } from "@/components/auth/login-button";
-import { PricingCardComponent } from "@/components/pricing-card";
+import { PricingCardComponent } from "@/components/auth/pricing-card";
 
 const font = Poppins({
   subsets: ["latin"],
