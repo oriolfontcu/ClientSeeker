@@ -16,6 +16,8 @@ import {
 import { LoginButton } from "../auth/login-button"
 import { Button } from "../ui/button"
 import { ModeToggle } from "../theme-toogle"
+import { LogoLink } from "../logo-link"
+import { ArrowRightToLine } from "lucide-react"
 
 const components: { title: string; href: string; description: string }[] = [
   {
@@ -58,7 +60,7 @@ const components: { title: string; href: string; description: string }[] = [
 export function NavbarLanding() {
   return (
     <nav className="w-full h-2/12 flex flex-row items-center justify-between p-10">
-        <Link href="/" className="text-lg font-semibold">ClientSeeker</Link>
+        <LogoLink />
         <NavigationMenu>
         <NavigationMenuList>
             <NavigationMenuItem>
@@ -123,7 +125,7 @@ export function NavbarLanding() {
             <ModeToggle/>      
             <LoginButton>
                     <Button variant="default" size="lg" className="font-semibold text-secondary">
-                    Sign in
+                    Sign in <ArrowRightToLine width="18" className="ml-2"/>
                     </Button>
             </LoginButton>
         </div>
