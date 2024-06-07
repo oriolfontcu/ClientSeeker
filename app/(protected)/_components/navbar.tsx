@@ -4,7 +4,6 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 
 import { UserButton } from "@/components/auth/user-button"
 
@@ -16,7 +15,7 @@ export const Navbar = () => {
     const membership = useCurrentMembership();
 
     return (
-        <nav className="bg-secondary flex justify-between items-center p-4 rounded-xl w-full shadow-sm">
+        <nav className="bg-secondary flex justify-between items-center p-6 w-full shadow-md">
             <div className="flex gap-x-5">
                 <Button 
                     asChild

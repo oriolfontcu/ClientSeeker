@@ -17,6 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
 import { Loader2 } from "lucide-react"
+import { FormError } from '@/components/form-error';
 
 export interface PlaceDetails {
   name: string;
@@ -124,8 +125,8 @@ const BusinessesDataTable = () => {
 
   return (
     <div>
-      <div className="bg-secondary justify-between items-center p-4 rounded-xl w-full shadow-sm">
-        <div className="flex space-x-4">
+      <div className="justify-between items-center p-4 rounded-xl w-full">
+        <div className="flex space-x-4 pb-4">
           <Input
             type="text"
             value={location}
@@ -146,7 +147,7 @@ const BusinessesDataTable = () => {
             {isLoading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading...</> : 'Get Businesses'}
           </Button>
         </div>
-        {error && <p className="text-red-500">{error}</p>}
+        {error && <FormError message={error}/>}
         {places.length > 0 && (
           <div className="rounded-md border mt-5">
             <Table className='justify-center'>
