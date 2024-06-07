@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { UserButton } from "@/components/auth/user-button"
 
 import { useCurrentMembership } from "@/hooks/use-current-membership"
+import { ModeToggle } from "@/components/theme-toogle"
 
 export const Navbar = () => {
     const pathname = usePathname()
@@ -45,6 +46,7 @@ export const Navbar = () => {
                     <Link href="/premium">Free</Link>
                 </Button>
                 }
+                <ModeToggle />
                 <UserButton />
             </div>
         </nav>

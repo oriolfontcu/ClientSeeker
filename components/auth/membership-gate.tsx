@@ -17,7 +17,7 @@ export const MembershipGate = ({
 
     if (membership != allowedMembership){
         return (
-            <FormError message="You should be a Premium member to access this content! "/>
+            <FormError message="You should become a premium member to access this content! "/>
         )
     }
 
