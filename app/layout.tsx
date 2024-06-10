@@ -22,8 +22,8 @@ export default async function RootLayout({
   return (
     <SessionProvider>
       <html lang="en">
-      <body className={`${rubik.className} bg-secondary`}>
-      <ThemeProvider attribute="class" defaultTheme="system">
+        <body className={`${rubik.className} bg-secondary`}>
+          <ThemeProvider attribute="class" defaultTheme="system">
               {children}
           </ThemeProvider>
         </body>
