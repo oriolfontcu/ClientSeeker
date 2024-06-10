@@ -76,7 +76,7 @@ export function NavbarLanding() {
                         <div className="mb-2 mt-4 text-lg font-semibold">
                         shadcn/ui
                         </div>
-                        <p className="text-sm leading-tight text-muted-foreground">
+                        <p className="text-sm leading-tight text-foreground">
                         Beautifully designed components that you can copy and
                         paste into your apps. Accessible. Customizable. Open
                         Source.
@@ -149,7 +149,7 @@ const ListItem = React.forwardRef<
           {...props}
         >
           <div className="text-sm font-semibold leading-none">{title}</div>
-          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+          <p className="line-clamp-2 text-sm leading-snug text-foreground">
             {children}
           </p>
         </a>
