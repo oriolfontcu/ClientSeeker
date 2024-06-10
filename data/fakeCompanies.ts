@@ -7,7 +7,7 @@ export const fakeCompanies: PlaceDetails[] = [
     formatted_phone_number: "123-456-7890",
     rating: undefined,
     user_ratings_total: undefined,
-    potentialClientRating: 'Low',
+    potentialClientRating: 'High',
   },
   {
     name: "Fake Company 2",
@@ -15,7 +15,7 @@ export const fakeCompanies: PlaceDetails[] = [
     formatted_phone_number: "987-654-3210",
     rating: undefined,
     user_ratings_total: undefined,
-    potentialClientRating: 'Low',
+    potentialClientRating: 'High',
   },
   {
     name: "Dummy Business 3",
@@ -23,7 +23,7 @@ export const fakeCompanies: PlaceDetails[] = [
     formatted_phone_number: "555-123-4567",  
     rating: undefined,
     user_ratings_total: undefined,
-    potentialClientRating: 'Low',
+    potentialClientRating: 'High',
   },
   {
     name: "Placeholder Inc.",
@@ -31,7 +31,7 @@ export const fakeCompanies: PlaceDetails[] = [
     formatted_phone_number: "800-555-1212",
     rating: undefined,
     user_ratings_total: undefined,
-    potentialClientRating: 'Low',
+    potentialClientRating: 'High',
   },
   {
     name: "Test Enterprises",
@@ -39,7 +39,7 @@ export const fakeCompanies: PlaceDetails[] = [
     formatted_phone_number: "404-555-1313",
     rating: undefined,
     user_ratings_total: undefined,
-    potentialClientRating: 'Low',
+    potentialClientRating: 'High',
   },
   {
     name: "Sample Co.",
@@ -47,7 +47,7 @@ export const fakeCompanies: PlaceDetails[] = [
     formatted_phone_number: "303-555-1414",
     rating: undefined,
     user_ratings_total: undefined,
-    potentialClientRating: 'Low',
+    potentialClientRating: 'High',
   },
   {
     name: "Demo LLC",
@@ -55,7 +55,7 @@ export const fakeCompanies: PlaceDetails[] = [
     formatted_phone_number: "606-555-1515",
     rating: undefined,
     user_ratings_total: undefined,
-    potentialClientRating: 'Low',
+    potentialClientRating: 'High',
   },
   {
     name: "Mock Corporation",
@@ -63,7 +63,7 @@ export const fakeCompanies: PlaceDetails[] = [
     formatted_phone_number: "707-555-1616",
     rating: undefined,
     user_ratings_total: undefined,
-    potentialClientRating: 'Low',
+    potentialClientRating: 'High',
   },
   {
     name: "Prototype Partners",
@@ -71,7 +71,7 @@ export const fakeCompanies: PlaceDetails[] = [
     formatted_phone_number: "808-555-1717",
     rating: undefined,
     user_ratings_total: undefined,
-    potentialClientRating: 'Low',
+    potentialClientRating: 'High',
   },
   {
     name: "Beta Testing Ltd.",
@@ -79,7 +79,7 @@ export const fakeCompanies: PlaceDetails[] = [
     formatted_phone_number: "909-555-1818",   
     rating: undefined,
     user_ratings_total: undefined,
-    potentialClientRating: 'Low',
+    potentialClientRating: 'High',
   },
   {
     name: "Alpha Industries",
@@ -87,7 +87,7 @@ export const fakeCompanies: PlaceDetails[] = [
     formatted_phone_number: "100-555-1919",
     rating: undefined,
     user_ratings_total: undefined,
-    potentialClientRating: 'Low',
+    potentialClientRating: 'High',
   },
   {
     name: "Imaginary Solutions",
@@ -95,7 +95,7 @@ export const fakeCompanies: PlaceDetails[] = [
     formatted_phone_number: "111-555-2020",
     rating: undefined,
     user_ratings_total: undefined,
-    potentialClientRating: 'Low',
+    potentialClientRating: 'High',
   },
   {
     name: "Fictitious Enterprises",
@@ -103,7 +103,7 @@ export const fakeCompanies: PlaceDetails[] = [
     formatted_phone_number: "222-555-2121",
     rating: undefined,
     user_ratings_total: undefined,
-    potentialClientRating: 'Low',
+    potentialClientRating: 'High',
   },
   {
     name: "Nonexistent Corp",
@@ -111,7 +111,7 @@ export const fakeCompanies: PlaceDetails[] = [
     formatted_phone_number: "333-555-2222",
     rating: undefined,
     user_ratings_total: undefined,
-    potentialClientRating: 'Low',
+    potentialClientRating: 'High',
   },
   {
     name: "Invisible Industries",
@@ -119,6 +119,6 @@ export const fakeCompanies: PlaceDetails[] = [
     formatted_phone_number: "444-555-2323",
     rating: undefined,
     user_ratings_total: undefined,
-    potentialClientRating: 'Low',
+    potentialClientRating: 'High',
   },
 ];

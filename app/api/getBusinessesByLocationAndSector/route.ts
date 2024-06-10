@@ -1,10 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
-import { getPlaceDetails } from '../../../lib/googlePlaces';
-import { fakeCompanies } from '../../../data/fakeCompanies';
 import { constants } from "@/constants"
 
 const API_KEY = process.env.GOOGLE_API_KEY;
+
+interface Place {
+  place_id: string;
+  formatted_phone_number?: string;
+  name: string;
+  geometry: {
+    location: {
+      lat: number;
+      lng: number;
+    };
+  };
+}
 
 const getCoordinates = async (location: string) => {
   const response = await axios.get('https://maps.googleapis.com/maps/api/geocode/json', {
@@ -34,7 +44,18 @@ const generateSubRegions = (lat: number, lng: number, distance: number = 0.1) =>
   return subRegions;
 };
 
-const fetchPlacesInSubRegions = async (subRegions: { lat: number, lng: number }[], sector: string) => {
+const fetchPlaceDetails = async (placeId: string) => {
+  const response = await axios.get('https://maps.googleapis.com/maps/api/place/details/json', {
+    params: {
+      place_id: placeId,
+      fields: 'formatted_phone_number,formatted_address',
+      key: API_KEY,
+    },
+  });
+  return response.data.result;
+};
+
+const fetchPlacesInSubRegions = async (subRegions: { lat: number, lng: number }[], sector: string, isTesting: boolean) => {
   let allPlaces: any[] = [];
 
   for (const { lat, lng } of subRegions) {
@@ -47,10 +68,19 @@ const fetchPlacesInSubRegions = async (subRegions: { lat: number, lng: number }[
       },
     });
 
-    allPlaces = [...allPlaces, ...response.data.results];
+    const placesWithDetails = await Promise.all((response.data.results as Place[]).map(async (place: Place) => {
+      const details = await fetchPlaceDetails(place.place_id);
+      return {
+        ...place,
+        formatted_phone_number: details.formatted_phone_number || 'No disponible',
+        formatted_address: details.formatted_address || 'No disponible'
+      };
+    }));
+
+    allPlaces = [...allPlaces, ...placesWithDetails];
   }
 
-  return allPlaces;
+  return isTesting ? allPlaces.slice(0, 1) : allPlaces.slice(0, constants.servicesUsage.getBusinessesByLocationAndSector.limiteConsultas);
 };
 
 const processPlaces = (places: any[]) => {
@@ -65,6 +95,7 @@ const processPlaces = (places: any[]) => {
           potentialClientRating = 'Mid';
         }
       }
+
       return {
         name: place.name,
         formatted_address: place.formatted_address,
@@ -74,14 +105,14 @@ const processPlaces = (places: any[]) => {
         user_ratings_total: place.user_ratings_total || null,
         potentialClientRating,
       };
-    })
-    .slice(0, constants.servicesUsage.getBusinessesByLocationAndSector.limiteConsultas); // Limite en constants.ts
+    });
 };
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const location = searchParams.get('location');
   const sector = searchParams.get('sector');
+  const isTesting = searchParams.get('isTesting') === 'true';
 
   if (!location || !sector) {
     return NextResponse.json({ error: 'Missing location or sector parameter' }, { status: 400 });
@@ -90,7 +121,8 @@ export async function GET(req: NextRequest) {
   try {
     const { lat, lng } = await getCoordinates(location);
     const subRegions = generateSubRegions(lat, lng);
-    const places = await fetchPlacesInSubRegions(subRegions, sector);
+    const places = await fetchPlacesInSubRegions(subRegions, sector, isTesting);
+
     const processedData = processPlaces(places);
 
     return NextResponse.json(processedData, { status: 200 });

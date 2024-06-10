@@ -121,7 +121,7 @@ export function NavbarLanding() {
             </NavigationMenuItem>
         </NavigationMenuList>
         </NavigationMenu>
-        <div className="flex flex-row justify-between w-48">
+        <div className="flex flex-row items-center justify-between w-48">
             <ModeToggle/>      
             <LoginButton>
                     <Button variant="default" size="lg" className="font-semibold text-secondary">

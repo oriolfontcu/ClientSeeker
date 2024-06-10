@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useMemo } from 'react';
 import {
   ColumnDef,
@@ -15,10 +17,9 @@ import {
 } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-
-import { Loader2 } from "lucide-react"
+import { Loader2 } from "lucide-react";
 import { FormError } from '@/components/form-error';
-import { constants } from '@/constants';
+import { fakeCompanies } from '@/data/fakeCompanies';
 
 export interface PlaceDetails {
   name: string;
@@ -28,9 +29,10 @@ export interface PlaceDetails {
   rating?: number;
   user_ratings_total?: number;
   potentialClientRating?: 'Low' | 'Mid' | 'High';
+  isBlurred?: boolean; // Agregar esta línea para incluir la propiedad isBlurred
 }
 
-const BusinessesDataTable = () => {
+export const TryIt = () => {
   const [location, setLocation] = useState("");
   const [sector, setSector] = useState("");
   const [places, setPlaces] = useState<PlaceDetails[]>([]);
@@ -41,14 +43,19 @@ const BusinessesDataTable = () => {
     setIsLoading(true); // Start loading
     setError(null); // Reset error state
     try {
-      const response = await fetch(`/api/getBusinessesByLocationAndSector?location=${location}&sector=${sector}`);
+      const response = await fetch(`/api/getBusinessesByLocationAndSector?location=${location}&sector=${sector}&isTesting=true`);
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to fetch business details");
+        const errorData = await response.text();
+        try {
+          const parsedError = JSON.parse(errorData);
+          throw new Error(parsedError.error || "Failed to fetch business details");
+        } catch (jsonError) {
+          throw new Error("Failed to fetch business details");
+        }
       }
       const data: PlaceDetails[] = await response.json();
 
-      const processedData = data.map(place => {
+      const processedData = data.map((place, index) => {
         let potentialClientRating: 'Low' | 'Mid' | 'High' = 'Low';
         if (place.rating && place.user_ratings_total) {
           if (place.rating >= 4 && place.user_ratings_total >= 50) {
@@ -59,11 +66,15 @@ const BusinessesDataTable = () => {
         }
         return {
           ...place,
-          potentialClientRating
+          potentialClientRating,
+          isBlurred: index !== 0 // Desenfocar todos menos el primero
         };
       });
 
-      setPlaces(processedData.slice(0, constants.servicesUsage.getBusinessesByLocationAndSector.limiteConsultas)); // Limitar a 50 resultados
+      const fakeData = fakeCompanies.map(fake => ({ ...fake, isBlurred: true }));
+      const finalData = [processedData[0], ...fakeData.slice(1, 10)];
+
+      setPlaces(finalData); // Limitar a 50 resultados
     } catch (error: any) {
       setError(error.message);
       setPlaces([]);
@@ -125,9 +136,9 @@ const BusinessesDataTable = () => {
   });
 
   return (
-    <div>
-      <div className="justify-between items-center p-4 rounded-xl w-full">
-        <div className="flex space-x-4 pb-4">
+    <div className='lg:w-3/4 w-10/12 pb-32'>
+      <div className="justify-between items-center p-4 rounded-xl bg-card">
+        <div className="flex space-x-4">
           <Input
             type="text"
             value={location}
@@ -148,7 +159,7 @@ const BusinessesDataTable = () => {
             {isLoading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading...</> : 'Get Businesses'}
           </Button>
         </div>
-        {error && <FormError message={error}/>}
+        {error && <FormError message={error} />}
         {places.length > 0 && (
           <div className="rounded-md border mt-5">
             <Table className='justify-center'>
@@ -170,7 +181,7 @@ const BusinessesDataTable = () => {
                   table.getRowModel().rows.map(row => (
                     <TableRow key={row.id}>
                       {row.getVisibleCells().map(cell => (
-                        <TableCell key={cell.id}>
+                        <TableCell key={cell.id} className={row.original.isBlurred ? 'blur-sm select-none' : ''}>
                           {flexRender(cell.column.columnDef.cell, cell.getContext())}
                         </TableCell>
                       ))}
@@ -191,5 +202,3 @@ const BusinessesDataTable = () => {
     </div>
   );
 };
-
-export default BusinessesDataTable;

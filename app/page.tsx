@@ -16,7 +16,7 @@ const font = Poppins({
 export default function Home() {
   return (
     <>
-      <main className="flex flex-col w-screen h-screen bg-secondary">
+      <main className="flex flex-col justify-center w-full h-full bg-secondary">
         <NavbarLanding />
         <HeaderLanding />
       </main>
