@@ -32,7 +32,7 @@ export const HeaderLanding = () => {
               </Button>
             </div>
           </div>
-          <div className="flex justify-center pt-10 w-3/4">
+          <div className="flex justify-center pt-10 w-full">
             <TryIt />
           </div>
         </section>

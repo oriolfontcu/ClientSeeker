@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
 import { constants } from "@/constants";
 import { scrapeEmails } from '../../../lib/scrapeEmails';
+import { scrapeSocialMedia } from '../../../lib/scrapeSocialMedia'; // Importar la nueva función de scraping
 
 const API_KEY = process.env.GOOGLE_API_KEY;
 
@@ -96,9 +97,11 @@ const processPlaces = async (places: any[]) => {
       }
     }
 
-    let emails : Array<string> = [];
+    let email: string | null = null;
+    let socialMedia: { instagram?: string; twitter?: string; tiktok?: string } = {};
     if (place.website) {
-      emails = await scrapeEmails(place.website);
+      email = await scrapeEmails(place.website);
+      socialMedia = await scrapeSocialMedia(place.website); // Agregar scraping de redes sociales
     }
 
     return {
@@ -109,7 +112,8 @@ const processPlaces = async (places: any[]) => {
       rating: place.rating || null,
       user_ratings_total: place.user_ratings_total || null,
       potentialClientRating,
-      emails
+      email,
+      socialMedia // Incluir redes sociales en los datos procesados
     };
   }));
 

@@ -15,16 +15,23 @@ import {
 } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-
-import { Loader2 } from "lucide-react"
+import { Loader2, Mail, Instagram, Twitter, Facebook } from "lucide-react";
 import { FormError } from '@/components/form-error';
 import { constants } from '@/constants';
+import Link from 'next/link';
 
 export interface PlaceDetails {
   name: string;
   formatted_address: string;
   formatted_phone_number: string;
   website?: string;
+  email?: string;
+  socialMedia?: {
+    instagram?: string | null;
+    twitter?: string | null;
+    facebook?: string | null;
+    tiktok?: string | null;
+  };
   rating?: number;
   user_ratings_total?: number;
   potentialClientRating?: 'Low' | 'Mid' | 'High';
@@ -101,6 +108,51 @@ const BusinessesDataTable = () => {
         },
       },
       {
+        accessorKey: 'email',
+        header: 'Email',
+        cell: ({ row }) => {
+          const email = row.original.email;
+          return email && email.length > 0 ? (
+            <Link href={`mailto:${email}`} className="flex justify-center">
+              <Mail className='cursor-pointer text-muted-foreground'/>
+            </Link>
+          ) : (
+            <span className="flex justify-center">No</span>
+          );
+        }
+      },
+      {
+        accessorKey: 'socialMedia',
+        header: 'Social',
+        cell: ({ row }) => {
+          const { instagram, twitter, facebook, tiktok } = row.original.socialMedia || {};
+          return (
+            <div className="flex space-x-2 justify-center">
+              {instagram && (
+                <Link href={instagram} target="_blank" rel="noopener noreferrer">
+                  <Instagram size={20} className='cursor-pointer text-muted-foreground' />
+                </Link>
+              )}
+              {twitter && (
+                <Link href={twitter} target="_blank" rel="noopener noreferrer">
+                  <Twitter size={20}  className='cursor-pointer text-muted-foreground' />
+                </Link>
+              )}
+              {facebook && (
+                <Link href={facebook} target="_blank" rel="noopener noreferrer">
+                  <Facebook size={20} className='cursor-pointer text-muted-foreground' />
+                </Link>
+              )}
+              {tiktok && (
+                <Link href={tiktok} target="_blank" rel="noopener noreferrer">
+                  Tiktok
+                </Link>
+              )}
+            </div>
+          );
+        }
+      },
+      {
         accessorKey: 'potentialClientRating',
         header: 'Rating',
         cell: ({ row }) => {
@@ -170,7 +222,7 @@ const BusinessesDataTable = () => {
                   table.getRowModel().rows.map(row => (
                     <TableRow key={row.id}>
                       {row.getVisibleCells().map(cell => (
-                        <TableCell key={cell.id}>
+                        <TableCell key={cell.id} className='items-align'>
                           {flexRender(cell.column.columnDef.cell, cell.getContext())}
                         </TableCell>
                       ))}

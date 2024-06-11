@@ -7,7 +7,7 @@ export const constants = {
     } ,
     servicesUsage: {
         getBusinessesByLocationAndSector: {
-            limiteConsultas: 10,
+            limiteConsultas: 3,
         }
     }
 }
