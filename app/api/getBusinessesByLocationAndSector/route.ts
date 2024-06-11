@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
 import { constants } from "@/constants";
 import { scrapeEmails } from '../../../lib/scrapeEmails';
-import { scrapeSocialMedia } from '../../../lib/scrapeSocialMedia'; // Importar la nueva función de scraping
+import { scrapeSocialMedia } from '../../../lib/scrapeSocialMedia';
 
 const API_KEY = process.env.GOOGLE_API_KEY;
 
@@ -57,7 +57,7 @@ const fetchPlaceDetails = async (placeId: string) => {
   return response.data.result;
 };
 
-const fetchPlacesInSubRegions = async (subRegions: { lat: number, lng: number }[], sector: string, isTesting: boolean) => {
+const fetchPlacesInSubRegions = async (subRegions: { lat: number, lng: number }[], sector: string, isTesting: boolean, website: string) => {
   let allPlaces: any[] = [];
 
   for (const { lat, lng } of subRegions) {
@@ -83,6 +83,14 @@ const fetchPlacesInSubRegions = async (subRegions: { lat: number, lng: number }[
     allPlaces = [...allPlaces, ...placesWithDetails];
   }
 
+  if (website === 'with') {
+    allPlaces = allPlaces.filter(place => place.website);
+  } else if (website === 'without') {
+    allPlaces = allPlaces.filter(place => !place.website);
+  } else if (website === null || website === 'all'){
+    allPlaces = allPlaces;
+  }
+
   return isTesting ? allPlaces.slice(0, 1) : allPlaces.slice(0, constants.servicesUsage.getBusinessesByLocationAndSector.limiteConsultas);
 };
 
@@ -97,11 +105,11 @@ const processPlaces = async (places: any[]) => {
       }
     }
 
-    let email: string | null = null;
-    let socialMedia: { instagram?: string; twitter?: string; tiktok?: string } = {};
+    let email: string | null = null
+    let socialMedia: any = {};
     if (place.website) {
       email = await scrapeEmails(place.website);
-      socialMedia = await scrapeSocialMedia(place.website); // Agregar scraping de redes sociales
+      socialMedia = await scrapeSocialMedia(place.website);
     }
 
     return {
@@ -113,11 +121,11 @@ const processPlaces = async (places: any[]) => {
       user_ratings_total: place.user_ratings_total || null,
       potentialClientRating,
       email,
-      socialMedia // Incluir redes sociales en los datos procesados
+      socialMedia
     };
   }));
 
-  return processedPlaces.filter(place => place.website);
+  return processedPlaces;
 };
 
 export async function GET(req: NextRequest) {
@@ -125,6 +133,7 @@ export async function GET(req: NextRequest) {
   const location = searchParams.get('location');
   const sector = searchParams.get('sector');
   const isTesting = searchParams.get('isTesting') === 'true';
+  const website = searchParams.get('website') || 'all';
 
   if (!location || !sector) {
     return NextResponse.json({ error: 'Missing location or sector parameter' }, { status: 400 });
@@ -133,7 +142,7 @@ export async function GET(req: NextRequest) {
   try {
     const { lat, lng } = await getCoordinates(location);
     const subRegions = generateSubRegions(lat, lng);
-    const places = await fetchPlacesInSubRegions(subRegions, sector, isTesting);
+    const places = await fetchPlacesInSubRegions(subRegions, sector, isTesting, website);
 
     const processedData = await processPlaces(places);
 

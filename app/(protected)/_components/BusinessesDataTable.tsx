@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   ColumnDef,
   flexRender,
@@ -15,10 +15,25 @@ import {
 } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Loader2, Mail, Instagram, Twitter, Facebook } from "lucide-react";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+
+import { Loader2, Mail, Instagram, Twitter, Facebook, LucideIcon, CheckCircle2, XCircle, Circle } from "lucide-react";
 import { FormError } from '@/components/form-error';
 import { constants } from '@/constants';
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
 
 export interface PlaceDetails {
   name: string;
@@ -37,6 +52,34 @@ export interface PlaceDetails {
   potentialClientRating?: 'Low' | 'Mid' | 'High';
 }
 
+type Status = {
+  value: string | undefined
+  label: string
+  icon: LucideIcon
+  color: string
+}
+
+const statusesWebsite: Status[] = [
+  { 
+    value: 'all',
+    label: 'All',  
+    icon: Circle,
+    color: 'text-primary',
+  },
+  {
+    value: "with",
+    label: "Website",
+    icon: CheckCircle2,
+    color: 'text-primary',
+  }
+  ,{
+    value: "without",
+    label: "No Website",
+    icon: XCircle,
+    color: 'text-red',
+  }  
+]
+
 const BusinessesDataTable = () => {
   const [location, setLocation] = useState("");
   const [sector, setSector] = useState("");
@@ -48,13 +91,13 @@ const BusinessesDataTable = () => {
     setIsLoading(true); // Start loading
     setError(null); // Reset error state
     try {
-      const response = await fetch(`/api/getBusinessesByLocationAndSector?location=${location}&sector=${sector}`);
+      const response = await fetch(`/api/getBusinessesByLocationAndSector?location=${location}&sector=${sector}&website=${selectedStatus?.value}`);
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || "Failed to fetch business details");
       }
       const data: PlaceDetails[] = await response.json();
-
+  
       const processedData = data.map(place => {
         let potentialClientRating: 'Low' | 'Mid' | 'High' = 'Low';
         if (place.rating && place.user_ratings_total) {
@@ -69,7 +112,7 @@ const BusinessesDataTable = () => {
           potentialClientRating
         };
       });
-
+  
       setPlaces(processedData.slice(0, constants.servicesUsage.getBusinessesByLocationAndSector.limiteConsultas)); // Limitar a 50 resultados
     } catch (error: any) {
       setError(error.message);
@@ -78,6 +121,7 @@ const BusinessesDataTable = () => {
       setIsLoading(false); // End loading
     }
   };
+  
 
   const columns = useMemo<ColumnDef<PlaceDetails>[]>(
     () => [
@@ -113,11 +157,11 @@ const BusinessesDataTable = () => {
         cell: ({ row }) => {
           const email = row.original.email;
           return email && email.length > 0 ? (
-            <Link href={`mailto:${email}`} className="flex justify-center">
+            <Link href={`mailto:${email}`} className="flex">
               <Mail className='cursor-pointer text-muted-foreground'/>
             </Link>
           ) : (
-            <span className="flex justify-center">No</span>
+            <span className="flex">No</span>
           );
         }
       },
@@ -127,7 +171,7 @@ const BusinessesDataTable = () => {
         cell: ({ row }) => {
           const { instagram, twitter, facebook, tiktok } = row.original.socialMedia || {};
           return (
-            <div className="flex space-x-2 justify-center">
+            <div className="flex space-x-2">
               {instagram && (
                 <Link href={instagram} target="_blank" rel="noopener noreferrer">
                   <Instagram size={20} className='cursor-pointer text-muted-foreground' />
@@ -176,6 +220,11 @@ const BusinessesDataTable = () => {
     getCoreRowModel: getCoreRowModel(),
   });
 
+  const [open, setOpen] = React.useState(false)
+  const [selectedStatus, setSelectedStatus] = React.useState<Status | null>(
+    null
+  )
+
   return (
     <div>
       <div className="justify-between items-center p-4 rounded-xl w-full">
@@ -192,6 +241,56 @@ const BusinessesDataTable = () => {
             onChange={(e) => setSector(e.target.value)}
             placeholder="Enter Sector"
           />
+          <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="ghost"
+                className="w-[150px] border-2 border-dashed border-primary "
+              >
+                {selectedStatus ? (
+                  <>
+                    <selectedStatus.icon className={cn("mr-2 h-4 w-4 shrink-0", selectedStatus.color === "text-red" ? "text-red-600" : "text-primary")} />
+                    {selectedStatus.label}
+                  </>
+                ) : (
+                  <>Website ...</>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[200px] p-0" side="bottom" align="start">
+              <Command>
+                <CommandInput placeholder="With website..." />
+                <CommandList>
+                  <CommandEmpty>No results found.</CommandEmpty>
+                  <CommandGroup>
+                    {statusesWebsite.map((status) => (
+                      <CommandItem
+                        key={status.value}
+                        value={status.value}
+                        onSelect={(value) => {
+                          setSelectedStatus(
+                            statusesWebsite.find((priority) => priority.value === value) ||
+                              null
+                          )
+                          setOpen(false)
+                        }}
+                      >
+                        <status.icon
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          status.value === selectedStatus?.value
+                            ? "opacity-100"
+                            : "opacity-40"
+                        )}
+                      />
+                        <span>{status.label}</span>
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
           <Button
             variant="default"
             onClick={fetchBusinessesByLocationAndSector}
@@ -202,7 +301,7 @@ const BusinessesDataTable = () => {
         </div>
         {error && <FormError message={error}/>}
         {places.length > 0 && (
-          <div className="rounded-md border mt-5">
+          <div className="rounded-md border mt-5 p-4 shadow-lg bg-card">
             <Table className='justify-center'>
               <TableHeader>
                 {table.getHeaderGroups().map(headerGroup => (

@@ -23,7 +23,7 @@ export const HeaderLanding = () => {
             </div>
             <div className="flex p-10 justify-center">
               <Button variant="default" className="mr-4 p-6 px-8 text-lg w-52">Try FREE now</Button>
-              <Button variant="ghost" className="border border-primary p-6 px-8 text-lg w-52">
+              <Button variant="ghost" className="border-2 border-dashed border-primary p-6 px-8 text-lg w-52">
                 Talk With Us
                 <Avatar className="border-2 border-secondary size-6 ml-2">
                     <AvatarImage src="https://github.com/shadcn.png" />

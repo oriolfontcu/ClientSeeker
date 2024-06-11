@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+
 import { Loader2, Mail, Instagram, Twitter, Facebook } from "lucide-react";
 import { FormError } from '@/components/form-error';
 import Link from 'next/link';
@@ -60,9 +61,9 @@ export const TryIt = () => {
   };
 
   return (
-    <div className='lg:w-3/4 w-10/12 bg-blue'>
+    <div className='lg:w-3/4 w-10/12'>
       <div className="justify-between items-center p-4 rounded-xl bg-card">
-        <div className="flex space-x-4 pb-4">
+        <div className="flex space-x-4">
           <Input
             type="text"
             value={location}
@@ -89,7 +90,7 @@ export const TryIt = () => {
             <Table className='justify-center'>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Business Name</TableHead>
+                  <TableHead>Name</TableHead>
                   <TableHead>Address</TableHead>
                   <TableHead>Phone</TableHead>
                   <TableHead>Website</TableHead>
@@ -121,7 +122,7 @@ export const TryIt = () => {
                       <span>No</span>
                     )}
                   </TableCell>
-                  <TableCell className='items-center'>
+                  <TableCell className='flex space-x-2'>
                     {place.socialMedia?.instagram && (
                       <Link href={place.socialMedia?.instagram} target="_blank" rel="noopener noreferrer">
                         <Instagram size={20} className='cursor-pointer text-muted-foreground' />
@@ -142,10 +143,9 @@ export const TryIt = () => {
                         Tiktok
                       </Link>
                     )}
-                    {!place.socialMedia? (
+                    {!place.socialMedia && (
                       <span>No</span>
-                    ) : <span></span>
-                    }
+                    )}
                   </TableCell>
                   <TableCell>
                     <span className={place.potentialClientRating === 'High' ? 'text-green-500' : place.potentialClientRating === 'Mid' ? 'text-yellow-500' : 'text-red-500'}>
@@ -154,7 +154,7 @@ export const TryIt = () => {
                   </TableCell>
                 </TableRow>
                 {fakeCompanies.map((fake, index) => (
-                  <TableRow key={index} className="blur-sm">
+                  <TableRow key={index} className="blur-sm justify-center select-none">
                     <TableCell>{fake.name}</TableCell>
                     <TableCell>{fake.formatted_address}</TableCell>
                     <TableCell>{fake.formatted_phone_number}</TableCell>
@@ -176,27 +176,27 @@ export const TryIt = () => {
                         <span>No</span>
                       )}
                     </TableCell>
-                    <TableCell>
-                        {fake.socialMedia?.instagram && (
-                          <Link href={fake.socialMedia?.instagram} target="_blank" rel="noopener noreferrer">
-                            <Instagram size={20} className='cursor-pointer text-muted-foreground' />
-                          </Link>
-                        )}
-                        {fake.socialMedia?.twitter && (
-                          <Link href={fake.socialMedia?.twitter} target="_blank" rel="noopener noreferrer">
-                            <Twitter size={20}  className='cursor-pointer text-muted-foreground' />
-                          </Link>
-                        )}
-                        {fake.socialMedia?.facebook && (
-                          <Link href={fake.socialMedia?.facebook} target="_blank" rel="noopener noreferrer">
-                            <Facebook size={20} className='cursor-pointer text-muted-foreground' />
-                          </Link>
-                        )}
-                        {fake.socialMedia?.tiktok && (
-                          <Link href={fake.socialMedia?.tiktok} target="_blank" rel="noopener noreferrer">
-                            Tiktok
-                          </Link>
-                        )}
+                    <TableCell className='flex items-center space-x-2'>
+                      {fake.socialMedia?.instagram && (
+                        <Link href={fake.socialMedia?.instagram} target="_blank" rel="noopener noreferrer">
+                          <Instagram size={20} className='cursor-pointer text-muted-foreground' />
+                        </Link>
+                      )}
+                      {fake.socialMedia?.twitter && (
+                        <Link href={fake.socialMedia?.twitter} target="_blank" rel="noopener noreferrer">
+                          <Twitter size={20}  className='cursor-pointer text-muted-foreground' />
+                        </Link>
+                      )}
+                      {fake.socialMedia?.facebook && (
+                        <Link href={fake.socialMedia?.facebook} target="_blank" rel="noopener noreferrer">
+                          <Facebook size={20} className='cursor-pointer text-muted-foreground' />
+                        </Link>
+                      )}
+                      {fake.socialMedia?.tiktok && (
+                        <Link href={fake.socialMedia?.tiktok} target="_blank" rel="noopener noreferrer">
+                          Tiktok
+                        </Link>
+                      )}
                     </TableCell>
                     <TableCell>
                       <span className={fake.potentialClientRating === 'High' ? 'text-green-500' : fake.potentialClientRating === 'Mid' ? 'text-yellow-500' : 'text-red-500'}>
