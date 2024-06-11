@@ -20,12 +20,14 @@ import { Button } from '@/components/ui/button';
 import { Loader2 } from "lucide-react";
 import { FormError } from '@/components/form-error';
 import { fakeCompanies } from '@/data/fakeCompanies';
+import { any } from 'zod';
 
 export interface PlaceDetails {
   name: string;
   formatted_address: string;
   formatted_phone_number: string;
   website?: string;
+  emails?: Array<string>;
   rating?: number;
   user_ratings_total?: number;
   potentialClientRating?: 'Low' | 'Mid' | 'High';
@@ -110,6 +112,22 @@ export const TryIt = () => {
             <span>No</span>
           );
         },
+      },
+      {
+        accessorKey: 'emails',
+        header: 'Email',
+        cell: ({ row }) => {
+          const emails = row.original.emails;
+          return emails && emails.length > 0 ? (
+            emails.map((email: string, index: number) => (
+              <a key={index} href={`mailto:${email}`} className="text-blue-500 underline mr-2">
+                Email
+              </a>
+            ))
+          ) : (
+            <span>No</span>
+          );
+        }
       },
       {
         accessorKey: 'potentialClientRating',

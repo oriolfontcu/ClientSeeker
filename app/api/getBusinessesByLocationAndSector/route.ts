@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
-import { constants } from "@/constants"
+import { constants } from "@/constants";
+import { scrapeEmails } from '../../../lib/scrapeEmails';
 
 const API_KEY = process.env.GOOGLE_API_KEY;
 
@@ -48,7 +49,7 @@ const fetchPlaceDetails = async (placeId: string) => {
   const response = await axios.get('https://maps.googleapis.com/maps/api/place/details/json', {
     params: {
       place_id: placeId,
-      fields: 'formatted_phone_number,formatted_address',
+      fields: 'formatted_phone_number,formatted_address,website',
       key: API_KEY,
     },
   });
@@ -73,7 +74,8 @@ const fetchPlacesInSubRegions = async (subRegions: { lat: number, lng: number }[
       return {
         ...place,
         formatted_phone_number: details.formatted_phone_number || 'No disponible',
-        formatted_address: details.formatted_address || 'No disponible'
+        formatted_address: details.formatted_address || 'No disponible',
+        website: details.website || null
       };
     }));
 
@@ -83,29 +85,35 @@ const fetchPlacesInSubRegions = async (subRegions: { lat: number, lng: number }[
   return isTesting ? allPlaces.slice(0, 1) : allPlaces.slice(0, constants.servicesUsage.getBusinessesByLocationAndSector.limiteConsultas);
 };
 
-const processPlaces = (places: any[]) => {
-  return places
-    .filter(place => !place.website)
-    .map(place => {
-      let potentialClientRating: 'Low' | 'Mid' | 'High' = 'Low';
-      if (place.rating && place.user_ratings_total) {
-        if (place.rating >= 4 && place.user_ratings_total >= 50) {
-          potentialClientRating = 'High';
-        } else if (place.rating >= 3 && place.user_ratings_total >= 20) {
-          potentialClientRating = 'Mid';
-        }
+const processPlaces = async (places: any[]) => {
+  const processedPlaces = await Promise.all(places.map(async place => {
+    let potentialClientRating: 'Low' | 'Mid' | 'High' = 'Low';
+    if (place.rating && place.user_ratings_total) {
+      if (place.rating >= 4 && place.user_ratings_total >= 50) {
+        potentialClientRating = 'High';
+      } else if (place.rating >= 3 && place.user_ratings_total >= 20) {
+        potentialClientRating = 'Mid';
       }
+    }
 
-      return {
-        name: place.name,
-        formatted_address: place.formatted_address,
-        formatted_phone_number: place.formatted_phone_number,
-        website: place.website || null,
-        rating: place.rating || null,
-        user_ratings_total: place.user_ratings_total || null,
-        potentialClientRating,
-      };
-    });
+    let emails : Array<string> = [];
+    if (place.website) {
+      emails = await scrapeEmails(place.website);
+    }
+
+    return {
+      name: place.name,
+      formatted_address: place.formatted_address,
+      formatted_phone_number: place.formatted_phone_number,
+      website: place.website || null,
+      rating: place.rating || null,
+      user_ratings_total: place.user_ratings_total || null,
+      potentialClientRating,
+      emails
+    };
+  }));
+
+  return processedPlaces.filter(place => place.website);
 };
 
 export async function GET(req: NextRequest) {
@@ -123,7 +131,7 @@ export async function GET(req: NextRequest) {
     const subRegions = generateSubRegions(lat, lng);
     const places = await fetchPlacesInSubRegions(subRegions, sector, isTesting);
 
-    const processedData = processPlaces(places);
+    const processedData = await processPlaces(places);
 
     return NextResponse.json(processedData, { status: 200 });
   } catch (error: any) {
