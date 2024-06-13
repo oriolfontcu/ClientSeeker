@@ -57,7 +57,7 @@ const fetchPlaceDetails = async (placeId: string) => {
   return response.data.result;
 };
 
-const fetchPlacesInSubRegions = async (subRegions: { lat: number, lng: number }[], sector: string, isTesting: boolean, website: string ) => { // Añadir Meta Ads, (metaAds: string)
+const fetchPlacesInSubRegions = async (subRegions: { lat: number, lng: number }[], sector: string, isTesting: boolean) => { 
   let allPlaces: any[] = [];
 
   for (const { lat, lng } of subRegions) {
@@ -83,29 +83,10 @@ const fetchPlacesInSubRegions = async (subRegions: { lat: number, lng: number }[
     allPlaces = [...allPlaces, ...placesWithDetails];
   }
 
-  // Para filtrar por negocios con web, sin o ambas opciones.
-  if (website === 'with') {
-    allPlaces = allPlaces.filter(place => place.website);
-  } else if (website === 'without') {
-    allPlaces = allPlaces.filter(place => !place.website);
-  } else if (website === null || website === 'all'){
-    allPlaces = allPlaces;
-  }
-
-
-  // Para filtrar por negocios que hacen Meta Ads, que no hacen, o ambas opciones.
-  // if (metaAds === "doing-ads"){
-  //   allPlaces = allPlaces.filter(place => place.metaAds) // TODO: Implementar api para ver si se hacen meta ADS o no.
-  // } else if (metaAds === "no-ads"){
-  //   allPlaces = allPlaces.filter(place => !place.metaAds)
-  // } else if (metaAds === null || metaAds === "all-ads"){
-  //   allPlaces = allPlaces;
-  // }
-
   return isTesting ? allPlaces.slice(0, 1) : allPlaces.slice(0, constants.servicesUsage.getBusinessesByLocationAndSector.limiteConsultas);
 };
 
-const processPlaces = async (places: any[]) => {
+const processPlaces = async (places: any[], website: string, mail: string) => {
   const processedPlaces = await Promise.all(places.map(async place => {
     let potentialClientRating: 'Low' | 'Mid' | 'High' = 'Low';
     if (place.rating && place.user_ratings_total) {
@@ -116,19 +97,12 @@ const processPlaces = async (places: any[]) => {
       }
     }
 
-    let email: string | null = null
+    let email: string | null = null;
     let socialMedia: any = {};
-    // let metaAds: any = null;
     if (place.website) {
       email = await scrapeEmails(place.website);
       socialMedia = await scrapeSocialMedia(place.website);
-
-      // if(place.socialMedia.facebook){
-      //   metaAds = await scrapeMetaAds(socialMedia.facebook)
-      // }
     }
-
-    // if(place.social.facebook)
 
     return {
       name: place.name,
@@ -140,11 +114,24 @@ const processPlaces = async (places: any[]) => {
       potentialClientRating,
       email,
       socialMedia,
-      // metaAds
     };
   }));
 
-  return processedPlaces;
+  let filteredPlaces = processedPlaces;
+
+  if (website === 'with') {
+    filteredPlaces = filteredPlaces.filter(place => place.website);
+  } else if (website === 'without') {
+    filteredPlaces = filteredPlaces.filter(place => !place.website);
+  }
+
+  if (mail === 'with-mail') {
+    filteredPlaces = filteredPlaces.filter(place => place.email);
+  } else if (mail === 'without-mail') {
+    filteredPlaces = filteredPlaces.filter(place => !place.email);
+  }
+
+  return filteredPlaces;
 };
 
 export async function GET(req: NextRequest) {
@@ -153,7 +140,7 @@ export async function GET(req: NextRequest) {
   const sector = searchParams.get('sector');
   const isTesting = searchParams.get('isTesting') === 'true';
   const website = searchParams.get('website') || 'all';
-  const metaAds = searchParams.get('metaAds') || 'all'; 
+  const mail = searchParams.get('mail') || 'all-mail';
 
   if (!location || !sector) {
     return NextResponse.json({ error: 'Missing location or sector parameter' }, { status: 400 });
@@ -162,9 +149,13 @@ export async function GET(req: NextRequest) {
   try {
     const { lat, lng } = await getCoordinates(location);
     const subRegions = generateSubRegions(lat, lng);
-    const places = await fetchPlacesInSubRegions(subRegions, sector, isTesting, website); // Añadir metaAds
+    const places = await fetchPlacesInSubRegions(subRegions, sector, isTesting);
 
-    const processedData = await processPlaces(places);
+    const processedData = await processPlaces(places, website, mail);
+
+    if (website === 'without' && mail === 'with-mail'){
+      return NextResponse.json({ error: 'Oops! We need a website to find emails' }, { status: 400 });
+    }
 
     return NextResponse.json(processedData, { status: 200 });
   } catch (error: any) {

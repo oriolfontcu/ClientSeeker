@@ -71,38 +71,59 @@ const statusesWebsite: Status[] = [
   },
   {
     value: "with",
-    label: "Website",
+    label: "With Website",
     icon: CheckCircle2,
     color: 'text-primary',
   }
   ,{
     value: "without",
-    label: "No Website",
+    label: "Without Website",
     icon: XCircle,
     color: 'text-red',
   }  
 ]
 
-const statusesMetaAds: Status[] = [
+const statusesMail: Status[] = [
   { 
-    value: 'all-ads',
+    value: 'all-mail',
     label: 'All',  
     icon: Circle,
-    color: 'text-blue-600',
+    color: 'text-primary',
   },
   {
-    value: "doing-ads",
-    label: "Doing ADS",
+    value: "with-mail",
+    label: "With Mail",
     icon: CheckCircle2,
-    color: 'text-blue-600',
+    color: 'text-primary',
   }
   ,{
-    value: "no-ads",
-    label: "No ADS",
+    value: "without-mail",
+    label: "Without Mail",
     icon: XCircle,
     color: 'text-red',
   }  
 ]
+
+// const statusesMetaAds: Status[] = [
+//   { 
+//     value: 'all-ads',
+//     label: 'All',  
+//     icon: Circle,
+//     color: 'text-blue-600',
+//   },
+//   {
+//     value: "doing-ads",
+//     label: "Doing ADS",
+//     icon: CheckCircle2,
+//     color: 'text-blue-600',
+//   }
+//   ,{
+//     value: "no-ads",
+//     label: "No ADS",
+//     icon: XCircle,
+//     color: 'text-red',
+//   }  
+// ]
 
 const BusinessesDataTable = () => {
   const [location, setLocation] = useState("");
@@ -115,7 +136,7 @@ const BusinessesDataTable = () => {
     setIsLoading(true); // Start loading
     setError(null); // Reset error state
     try {
-      const response = await fetch(`/api/getBusinessesByLocationAndSector?location=${location}&sector=${sector}&website=${selectedStatusWeb?.value}&metaAds=${selectedStatusMetaAds?.value}`);
+      const response = await fetch(`/api/getBusinessesByLocationAndSector?location=${location}&sector=${sector}&website=${selectedStatusWeb?.value}&mail=${selectedStatusMail?.value}`);
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || "Failed to fetch business details");
@@ -208,7 +229,7 @@ const BusinessesDataTable = () => {
               )}
               {facebook && (
                 <Link href={facebook} target="_blank" rel="noopener noreferrer">
-                  <Facebook size={20} className='cursor-pointer text-muted-foreground' />
+                  <Facebook size={20} className='cursor-pointer text-muted-foreground -mx-1' />
                 </Link>
               )}
               {tiktok && (
@@ -246,6 +267,11 @@ const BusinessesDataTable = () => {
 
   const [openWeb, setOpenWeb] = React.useState(false)
   const [selectedStatusWeb, setSelectedStatusWeb] = React.useState<Status | null>(
+    null
+  )
+
+  const [openMail, setOpenMail] = React.useState(false)
+  const [selectedStatusMail, setSelectedStatusMail] = React.useState<Status | null>(
     null
   )
 
@@ -323,7 +349,60 @@ const BusinessesDataTable = () => {
           {/* 
           
           */}
-          <Popover open={openMetaAds} onOpenChange={setOpenMetaAds}>
+          <Popover open={openMail} onOpenChange={setOpenMail}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="ghost"
+                className={cn("w-96 border-2 border-dashed text-muted-foreground", selectedStatusMail?.color === "text-primary" ? "border-primary" : "border-red-600", !selectedStatusMail ? "border-muted-foreground" : "")}
+              >
+                {selectedStatusMail ? (
+                  <>
+                    <selectedStatusMail.icon className={cn("mr-2 h-4 w-4 shrink-0", selectedStatusMail.color === "text-red" ? "text-red-600" : "text-primary")} />
+                    {selectedStatusMail.label}
+                  </>
+                ) : (
+                  <>Mail ...</>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[200px] p-0" side="bottom" align="start">
+              <Command>
+                <CommandInput placeholder="With mail..." />
+                <CommandList>
+                  <CommandEmpty>No results found.</CommandEmpty>
+                  <CommandGroup>
+                    {statusesMail.map((status) => (
+                      <CommandItem
+                        key={status.value}
+                        value={status.value}
+                        onSelect={(value) => {
+                          setSelectedStatusMail(
+                            statusesMail.find((priority) => priority.value === value) ||
+                              null
+                          )
+                          setOpenMail(false)
+                        }}
+                      >
+                        <status.icon
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          status.value === selectedStatusMail?.value
+                            ? "opacity-100"
+                            : "opacity-40"
+                        )}
+                      />
+                        <span>{status.label}</span>
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+          {/* 
+          
+          */}
+          {/* <Popover open={openMetaAds} onOpenChange={setOpenMetaAds}>
             <PopoverTrigger asChild>
               <Button
                 variant="ghost"
@@ -372,7 +451,7 @@ const BusinessesDataTable = () => {
                 </CommandList>
               </Command>
             </PopoverContent>
-          </Popover>
+          </Popover> */}
           <Button
             variant="default"
             onClick={fetchBusinessesByLocationAndSector}
