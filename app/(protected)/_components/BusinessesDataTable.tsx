@@ -30,7 +30,10 @@ import {
 } from "@/components/ui/popover"
 
 import { Loader2, Mail, Instagram, Twitter, Facebook, LucideIcon, CheckCircle2, XCircle, Circle } from "lucide-react";
+
 import { FormError } from '@/components/form-error';
+import { ExportButton } from "@/app/(protected)/_components/export-button"
+
 import { constants } from '@/constants';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -80,6 +83,27 @@ const statusesWebsite: Status[] = [
   }  
 ]
 
+const statusesMetaAds: Status[] = [
+  { 
+    value: 'all-ads',
+    label: 'All',  
+    icon: Circle,
+    color: 'text-blue-600',
+  },
+  {
+    value: "doing-ads",
+    label: "Doing ADS",
+    icon: CheckCircle2,
+    color: 'text-blue-600',
+  }
+  ,{
+    value: "no-ads",
+    label: "No ADS",
+    icon: XCircle,
+    color: 'text-red',
+  }  
+]
+
 const BusinessesDataTable = () => {
   const [location, setLocation] = useState("");
   const [sector, setSector] = useState("");
@@ -91,7 +115,7 @@ const BusinessesDataTable = () => {
     setIsLoading(true); // Start loading
     setError(null); // Reset error state
     try {
-      const response = await fetch(`/api/getBusinessesByLocationAndSector?location=${location}&sector=${sector}&website=${selectedStatus?.value}`);
+      const response = await fetch(`/api/getBusinessesByLocationAndSector?location=${location}&sector=${sector}&website=${selectedStatusWeb?.value}&metaAds=${selectedStatusMetaAds?.value}`);
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || "Failed to fetch business details");
@@ -220,8 +244,13 @@ const BusinessesDataTable = () => {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  const [open, setOpen] = React.useState(false)
-  const [selectedStatus, setSelectedStatus] = React.useState<Status | null>(
+  const [openWeb, setOpenWeb] = React.useState(false)
+  const [selectedStatusWeb, setSelectedStatusWeb] = React.useState<Status | null>(
+    null
+  )
+
+  const [openMetaAds, setOpenMetaAds] = React.useState(false)
+  const [selectedStatusMetaAds, setSelectedStatusMetaAds] = React.useState<Status | null>(
     null
   )
 
@@ -241,16 +270,16 @@ const BusinessesDataTable = () => {
             onChange={(e) => setSector(e.target.value)}
             placeholder="Enter Sector"
           />
-          <Popover open={open} onOpenChange={setOpen}>
+          <Popover open={openWeb} onOpenChange={setOpenWeb}>
             <PopoverTrigger asChild>
               <Button
                 variant="ghost"
-                className="w-[150px] border-2 border-dashed border-primary "
+                className={cn("w-96 border-2 border-dashed text-muted-foreground", selectedStatusWeb?.color === "text-primary" ? "border-primary" : "border-red-600", !selectedStatusWeb ? "border-muted-foreground" : "")}
               >
-                {selectedStatus ? (
+                {selectedStatusWeb ? (
                   <>
-                    <selectedStatus.icon className={cn("mr-2 h-4 w-4 shrink-0", selectedStatus.color === "text-red" ? "text-red-600" : "text-primary")} />
-                    {selectedStatus.label}
+                    <selectedStatusWeb.icon className={cn("mr-2 h-4 w-4 shrink-0", selectedStatusWeb.color === "text-red" ? "text-red-600" : "text-primary")} />
+                    {selectedStatusWeb.label}
                   </>
                 ) : (
                   <>Website ...</>
@@ -268,17 +297,70 @@ const BusinessesDataTable = () => {
                         key={status.value}
                         value={status.value}
                         onSelect={(value) => {
-                          setSelectedStatus(
+                          setSelectedStatusWeb(
                             statusesWebsite.find((priority) => priority.value === value) ||
                               null
                           )
-                          setOpen(false)
+                          setOpenWeb(false)
                         }}
                       >
                         <status.icon
                         className={cn(
                           "mr-2 h-4 w-4",
-                          status.value === selectedStatus?.value
+                          status.value === selectedStatusWeb?.value
+                            ? "opacity-100"
+                            : "opacity-40"
+                        )}
+                      />
+                        <span>{status.label}</span>
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+          {/* 
+          
+          */}
+          <Popover open={openMetaAds} onOpenChange={setOpenMetaAds}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="ghost"
+                className={cn("w-96 border-2 border-dashed text-muted-foreground", selectedStatusMetaAds?.color === "text-blue-600" ? "border-blue-600" : "border-red-600", !selectedStatusMetaAds ? "border-muted-foreground" : "" )}
+              >
+                {selectedStatusMetaAds ? (
+                  <>
+                    <selectedStatusMetaAds.icon className={cn("mr-2 h-4 w-4 shrink-0", selectedStatusMetaAds.color === "text-red" ? "text-red-600" : "text-blue-600")} />
+                    {selectedStatusMetaAds.label}
+                  </>
+                ) : (
+                  <>Meta Ads ...</>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[200px] p-0" side="bottom" align="start">
+              <Command>
+                <CommandInput placeholder="Doing Facebook Ads..." />
+                <CommandList>
+                  <CommandEmpty>No results found.</CommandEmpty>
+                  <CommandGroup>
+                    {statusesMetaAds.map((status) => (
+                      <CommandItem
+                        key={status.value}
+                        value={status.value}
+                        onSelect={(value) => {
+                          setSelectedStatusMetaAds(
+                            statusesMetaAds.find((priority) => priority.value === value) ||
+                              null
+                          )
+                          setOpenMetaAds(false)
+                        }}
+                      >
+                        <status.icon
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          status.value === selectedStatusMetaAds?.value
                             ? "opacity-100"
                             : "opacity-40"
                         )}
@@ -337,6 +419,11 @@ const BusinessesDataTable = () => {
               </TableBody>
             </Table>
           </div>
+        )}
+        {places.length > 0 && (
+        <div className='flex flex-row justify-end pt-4'>
+          <ExportButton />
+        </div>
         )}
       </div>
     </div>

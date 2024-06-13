@@ -23,12 +23,6 @@ export const Navbar = () => {
                 >
                     <Link href="/dashboard">Dashboard </Link>
                 </Button>
-                <Button 
-                    asChild
-                    variant={pathname === "/settings" ? "default" : "outline"}
-                >
-                    <Link href="/settings">Settings</Link>
-                </Button>
             </div>
             <div className="flex gap-x-5 justify-center items-center">
                 {membership === "PREMIUM" ? 

@@ -18,7 +18,7 @@ export const scrapeSocialMedia = async (url: string): Promise<{ [key: string]: s
             if (href) {
                 if (href.includes('instagram.com')) {
                     socialMediaLinks.instagram = href;
-                } else if (href.includes('twitter.com')) {
+                } else if (href.includes('twitter.com' || 'x.com')) {
                     socialMediaLinks.twitter = href;
                 } else if (href.includes('facebook.com')) {
                     socialMediaLinks.facebook = href;

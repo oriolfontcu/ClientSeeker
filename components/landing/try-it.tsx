@@ -61,8 +61,8 @@ export const TryIt = () => {
   };
 
   return (
-    <div className='lg:w-3/4 w-10/12'>
-      <div className="justify-between items-center p-4 rounded-xl bg-card">
+    <div className='lg:w-3/4 w-10/12 p-4'>
+      <div className="justify-between items-center p-4 rounded-xl">
         <div className="flex space-x-4">
           <Input
             type="text"
@@ -86,7 +86,7 @@ export const TryIt = () => {
         </div>
         {error && <FormError message={error} />}
         {place && (
-          <div className="rounded-md border mt-5">
+          <div className="rounded-md border mt-5 p-4 shadow-lg bg-card">
             <Table className='justify-center'>
               <TableHeader>
                 <TableRow>
@@ -154,7 +154,7 @@ export const TryIt = () => {
                   </TableCell>
                 </TableRow>
                 {fakeCompanies.map((fake, index) => (
-                  <TableRow key={index} className="blur-sm justify-center select-none">
+                  <TableRow key={index} className="blur-sm justify-center select-none shadw"> 
                     <TableCell>{fake.name}</TableCell>
                     <TableCell>{fake.formatted_address}</TableCell>
                     <TableCell>{fake.formatted_phone_number}</TableCell>
@@ -169,9 +169,8 @@ export const TryIt = () => {
                     </TableCell>
                     <TableCell>
                       {fake.email ? (
-                        <Link href={`mailto:${fake.email}`}>
-                          <Mail className='cursor-pointer text-muted-foreground'/>
-                        </Link>
+                        fake.email
+                        // <Mail className='cursor-pointer text-muted-foreground'/>
                       ) : (
                         <span>No</span>
                       )}
