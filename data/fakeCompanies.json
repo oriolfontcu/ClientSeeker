@@ -1,0 +1,47 @@
+[
+    {
+      "name": "Chill Bar",
+      "formatted_address": "C/ de Provença, 424, L'Eixample, 08025 Barcelona, Spain",
+      "formatted_phone_number": "934 76 22 70",
+      "website": "http://www.chillbarcelona.com/",
+      "rating": 4.3,
+      "user_ratings_total": 1820,
+      "potentialClientRating": "High",
+      "email": "info@chillbarbarcelona.com",
+      "socialMedia": {
+        "instagram": "https://www.instagram.com/explore/locations/15487076/",
+        "twitter": "http://www.twitter.com",
+        "facebook": "https://www.facebook.com/chillbarcelona/",
+        "tiktok": null
+      }
+    },
+    {
+      "name": "Bare Nostrum Bar Coctelería Gintoniquería",
+      "formatted_address": "C/ del Consell de Cent, 384, L'Eixample, 08009 Barcelona, Spain",
+      "formatted_phone_number": "687 95 58 16",
+      "website": null,
+      "rating": 4.1,
+      "user_ratings_total": 1084,
+      "potentialClientRating": "High",
+      "email": null,
+      "socialMedia": {
+        
+      }
+    },
+    {
+      "name": "Bar Sincopa",
+      "formatted_address": "Carrer d'Avinyó, 35, Ciutat Vella, 08002 Barcelona, Spain",
+      "formatted_phone_number": "932 68 75 60",
+      "website": "http://www.facebook.com/sincopa.barcelona",
+      "rating": 4.5,
+      "user_ratings_total": 1578,
+      "potentialClientRating": "High",
+      "email": null,
+      "socialMedia": {
+        "instagram": null,
+        "twitter": null,
+        "facebook": null,
+        "tiktok": null
+      }
+    }
+]

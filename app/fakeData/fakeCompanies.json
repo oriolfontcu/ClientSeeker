@@ -1,0 +1,64 @@
+{
+  "fakeCompanies": [
+    {
+      "name": "Fake Company 1",
+      "formatted_address": "123 Fake Street, Faketown",
+      "formatted_phone_number": "123-456-7890",
+      "website": "fake1.com",
+      "email": "test@testenterprises.com",
+      "rating": null,
+      "user_ratings_total": null,
+      "potentialClientRating": "High"
+    },
+    {
+      "name": "Fake Company 2",
+      "formatted_address": "456 Fiction Avenue, Imaginaria",
+      "formatted_phone_number": "987-654-3210",
+      "website": "fakecompany2.com",
+      "email": null,
+      "rating": null,
+      "user_ratings_total": null,
+      "potentialClientRating": "High"
+    },
+    {
+      "name": "Dummy Business 3",
+      "formatted_address": "789 Mockingbird Lane, Nowhere",
+      "formatted_phone_number": "555-123-4567",
+      "website": null,
+      "email": null,
+      "rating": null,
+      "user_ratings_total": null,
+      "potentialClientRating": "High"
+    },
+    {
+      "name": "Placeholder Inc.",
+      "formatted_address": "101 Placeholder Blvd, Somewhere",
+      "formatted_phone_number": "800-555-1212",
+      "website": "placeholder.com",
+      "email": "test@testenterprises.com",
+      "rating": null,
+      "user_ratings_total": null,
+      "potentialClientRating": "High"
+    },
+    {
+      "name": "Test Enterprises",
+      "formatted_address": "202 Test Drive, Testville",
+      "formatted_phone_number": "404-555-1313",
+      "website": "testenterprises.com",
+      "email": null,
+      "rating": null,
+      "user_ratings_total": null,
+      "potentialClientRating": "High"
+    },
+    {
+      "name": "Sample Co.",
+      "formatted_address": "303 Sample Street, Example City",
+      "formatted_phone_number": "303-555-1414",
+      "website": "sample.com",
+      "email": "test@testenterprises.com",
+      "rating": null,
+      "user_ratings_total": null,
+      "potentialClientRating": "High"
+    }
+  ]
+}

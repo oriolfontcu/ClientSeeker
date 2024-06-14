@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
 import { constants } from "@/constants";
+import { fakeCompanies } from '../../../data/fakeCompanies';
 import { scrapeEmails } from '../../../lib/scrapeEmails';
 import { scrapeSocialMedia } from '../../../lib/scrapeSocialMedia';
 
@@ -57,10 +58,24 @@ const fetchPlaceDetails = async (placeId: string) => {
   return response.data.result;
 };
 
-const fetchPlacesInSubRegions = async (subRegions: { lat: number, lng: number }[], sector: string, isTesting: boolean) => { 
+const fetchPlacesInSubRegions = async (subRegions: { lat: number, lng: number }[], sector: string, isTesting: boolean) => {
   let allPlaces: any[] = [];
+  let nextPageToken = null;
 
-  for (const { lat, lng } of subRegions) {
+  let foundPlacesQty = 0;
+  const requestLimit = 10; // Puedes ajustar este límite según tus necesidades
+
+  // Inicializa el índice de la subregión actual
+  let subRegionIndex = 0;
+
+  do {
+    if (foundPlacesQty >= requestLimit) {
+      // Si se han procesado todas las subregiones, detén el ciclo
+      break;
+    }
+
+    const { lat, lng } = subRegions[subRegionIndex];
+
     const response = await axios.get('https://maps.googleapis.com/maps/api/place/nearbysearch/json', {
       params: {
         location: `${lat},${lng}`,
@@ -70,20 +85,38 @@ const fetchPlacesInSubRegions = async (subRegions: { lat: number, lng: number }[
       },
     });
 
-    const placesWithDetails = await Promise.all((response.data.results as Place[]).map(async (place: Place) => {
+    const places = response.data.results as Place[];
+    const placesWithDetails = [];
+
+    for (const place of places) {
+      if (foundPlacesQty >= requestLimit) {
+        break;
+      }
+
       const details = await fetchPlaceDetails(place.place_id);
-      return {
+
+      placesWithDetails.push({
         ...place,
         formatted_phone_number: details.formatted_phone_number || 'No disponible',
         formatted_address: details.formatted_address || 'No disponible',
         website: details.website || null
-      };
-    }));
+      });
+
+      console.log(requestLimit, foundPlacesQty, places.length)
+      foundPlacesQty++;
+    }
 
     allPlaces = [...allPlaces, ...placesWithDetails];
-  }
+    nextPageToken = response.data.next_page_token; // Actualiza el token para la próxima página
 
-  return isTesting ? allPlaces.slice(0, 1) : allPlaces.slice(0, constants.servicesUsage.getBusinessesByLocationAndSector.limiteConsultas);
+    if (!nextPageToken) {
+      // Si no hay más páginas, pasa a la siguiente subregión
+      subRegionIndex++;
+    }
+  
+  } while (foundPlacesQty < requestLimit);
+
+  return isTesting ? allPlaces.slice(0, 1) : allPlaces;
 };
 
 const processPlaces = async (places: any[], website: string, mail: string) => {

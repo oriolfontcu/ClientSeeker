@@ -136,29 +136,59 @@ const BusinessesDataTable = () => {
     setIsLoading(true); // Start loading
     setError(null); // Reset error state
     try {
-      const response = await fetch(`/api/getBusinessesByLocationAndSector?location=${location}&sector=${sector}&website=${selectedStatusWeb?.value}&mail=${selectedStatusMail?.value}`);
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to fetch business details");
-      }
-      const data: PlaceDetails[] = await response.json();
-  
-      const processedData = data.map(place => {
-        let potentialClientRating: 'Low' | 'Mid' | 'High' = 'Low';
-        if (place.rating && place.user_ratings_total) {
-          if (place.rating >= 4 && place.user_ratings_total >= 50) {
-            potentialClientRating = 'High';
-          } else if (place.rating >= 3 && place.user_ratings_total >= 20) {
-            potentialClientRating = 'Mid';
-          }
+
+      if (process.env.NODE_ENV === "production"){
+        const response = await fetch(`/api/getBusinessesByLocationAndSector?location=${location}&sector=${sector}&website=${selectedStatusWeb?.value}&mail=${selectedStatusMail?.value}`);
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Failed to fetch business details");
         }
-        return {
-          ...place,
-          potentialClientRating
-        };
-      });
+        const data: PlaceDetails[] = await response.json();
+    
+        const processedData = data.map(place => {
+          let potentialClientRating: 'Low' | 'Mid' | 'High' = 'Low';
+          if (place.rating && place.user_ratings_total) {
+            if (place.rating >= 4 && place.user_ratings_total >= 50) {
+              potentialClientRating = 'High';
+            } else if (place.rating >= 3 && place.user_ratings_total >= 20) {
+              potentialClientRating = 'Mid';
+            }
+          }
+          return {
+            ...place,
+            potentialClientRating
+          };
+        });
+    
+        setPlaces(processedData); // Limitar a 50 resultados
   
-      setPlaces(processedData.slice(0, constants.servicesUsage.getBusinessesByLocationAndSector.limiteConsultas)); // Limitar a 50 resultados
+      } else {
+        const response = await fetch(`/api/fakeCompanies`)
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Failed to fetch business details");
+        }
+        const data: PlaceDetails[] = await response.json();
+    
+        const processedData = data.map(place => {
+          let potentialClientRating: 'Low' | 'Mid' | 'High' = 'Low';
+          if (place.rating && place.user_ratings_total) {
+            if (place.rating >= 4 && place.user_ratings_total >= 50) {
+              potentialClientRating = 'High';
+            } else if (place.rating >= 3 && place.user_ratings_total >= 20) {
+              potentialClientRating = 'Mid';
+            }
+          }
+          return {
+            ...place,
+            potentialClientRating
+          };
+        });
+    
+        setPlaces(processedData); // Limitar a 50 resultados
+      }
+
     } catch (error: any) {
       setError(error.message);
       setPlaces([]);

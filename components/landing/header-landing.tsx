@@ -1,7 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "../ui/button"
 import { TrustedUsers } from "./trusted-users"
-import { TryIt } from "./try-it"
+import { TryIt } from "@/components/landing/try-it"
 
 export const HeaderLanding = () => {
     return (
