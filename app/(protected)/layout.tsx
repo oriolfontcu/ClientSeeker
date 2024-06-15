@@ -27,7 +27,7 @@ const ProtectedLayout = ({ children }: ProtectedLayoutProps) => {
     }, []);
 
     return (
-        <div className="h-screen w-full flex flex-col gap-y-10 items-center top-0 z-[-2] bg-secondary/50">
+        <div className="h-screen w-screen flex flex-col gap-y-10 items-center top-0 z-[-2] bg-secondary/50">
             <Navbar />
             {isLoading && <LoadingOverlay />}
             {!isLoading && (

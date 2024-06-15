@@ -160,7 +160,7 @@ const BusinessesDataTable = () => {
           };
         });
     
-        setPlaces(processedData); // Limitar a 50 resultados
+        setPlaces(processedData); 
   
       } else {
         const response = await fetch(`/api/fakeCompanies`)

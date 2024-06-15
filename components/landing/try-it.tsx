@@ -45,7 +45,7 @@ export const TryIt = () => {
     setIsLoading(true); // Start loading
     setError(null); // Reset error state
     try {
-      const response = await fetch(`/api/getBusinessesByLocationAndSector?location=${location}&sector=${sector}`);
+      const response = await fetch(`/api/fakeCompanies`)
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || "Failed to fetch business details");
