@@ -128,6 +128,7 @@ const statusesMail: Status[] = [
 const BusinessesDataTable = () => {
   const [location, setLocation] = useState("");
   const [sector, setSector] = useState("");
+  const [limit, setLimit] = useState("")
   const [places, setPlaces] = useState<PlaceDetails[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -137,8 +138,8 @@ const BusinessesDataTable = () => {
     setError(null); // Reset error state
     try {
 
-      if (process.env.NODE_ENV === "production"){
-        const response = await fetch(`/api/getBusinessesByLocationAndSector?location=${location}&sector=${sector}&website=${selectedStatusWeb?.value}&mail=${selectedStatusMail?.value}`);
+      if (process.env.NODE_ENV !== "production"){
+        const response = await fetch(`/api/getBusinessesByLocationAndSector?location=${location}&sector=${sector}&website=${selectedStatusWeb?.value}&mail=${selectedStatusMail?.value}&limit=${limit}`);
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.error || "Failed to fetch business details");
@@ -325,6 +326,13 @@ const BusinessesDataTable = () => {
             value={sector}
             onChange={(e) => setSector(e.target.value)}
             placeholder="Enter Sector"
+          />
+          <Input 
+            type="number"
+            value={limit}
+            onChange={(e) => setLimit(e.target.value)}
+            placeholder='Leads'
+            className='w-[80px] text-center'
           />
           <Popover open={openWeb} onOpenChange={setOpenWeb}>
             <PopoverTrigger asChild>

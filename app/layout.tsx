@@ -5,7 +5,10 @@ import { auth } from "@/auth";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 
-const rubik = Rubik({ subsets: ["latin"] });
+const rubik = Rubik({
+  subsets: ['latin'],
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: "Create Next App",

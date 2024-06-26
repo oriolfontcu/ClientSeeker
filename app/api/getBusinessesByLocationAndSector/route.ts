@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
-import { constants } from "@/constants";
-import { fakeCompanies } from '../../../data/fakeCompanies';
 import { scrapeEmails } from '../../../lib/scrapeEmails';
 import { scrapeSocialMedia } from '../../../lib/scrapeSocialMedia';
 
@@ -58,14 +56,13 @@ const fetchPlaceDetails = async (placeId: string) => {
   return response.data.result;
 };
 
-const fetchPlacesInSubRegions = async (subRegions: { lat: number, lng: number }[], sector: string, isTesting: boolean) => {
+const fetchPlacesInSubRegions = async (subRegions: { lat: number, lng: number }[], sector: string, limit: number, isTesting: boolean) => {
   let allPlaces: any[] = [];
   let nextPageToken = null;
 
   let foundPlacesQty = 0;
-  const requestLimit = 10; // Puedes ajustar este límite según tus necesidades
+  const requestLimit = limit; // Puedes ajustar este límite según tus necesidades
 
-  // Inicializa el índice de la subregión actual
   let subRegionIndex = 0;
 
   do {
@@ -174,15 +171,16 @@ export async function GET(req: NextRequest) {
   const isTesting = searchParams.get('isTesting') === 'true';
   const website = searchParams.get('website') || 'all';
   const mail = searchParams.get('mail') || 'all-mail';
+  const limit = searchParams.get('limit');
 
-  if (!location || !sector) {
-    return NextResponse.json({ error: 'Missing location or sector parameter' }, { status: 400 });
+  if (!location || !sector || !limit) {
+    return NextResponse.json({ error: 'Missing location, sector parameter or leads quantity' }, { status: 400 });
   }
 
   try {
     const { lat, lng } = await getCoordinates(location);
     const subRegions = generateSubRegions(lat, lng);
-    const places = await fetchPlacesInSubRegions(subRegions, sector, isTesting);
+    const places = await fetchPlacesInSubRegions(subRegions, sector, Number(limit), isTesting);
 
     const processedData = await processPlaces(places, website, mail);
 

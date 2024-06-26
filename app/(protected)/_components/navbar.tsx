@@ -11,17 +11,32 @@ import { ModeToggle } from "@/components/theme-toogle"
 import { Menu } from "lucide-react"
 
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Badge } from "@/components/ui/badge"
+
 import { LogoLink } from "@/components/logo-link"
 import { cn } from "@/lib/utils"
 
+import { useCurrentRole } from "@/hooks/use-current-role"
+
 export const Navbar = () => {
 
+    const role = useCurrentRole();
     const pathname = usePathname()
 
     return (
         <header className="bg-secondary w-full sticky top-0 flex items-center  border-b md:px-6 shadow-md p-6">
             <nav className="hidden flex-col text-lg font-medium md:flex md:flex-row md:items-center md:text-sm">
             <LogoLink />
+            {role === "ADMIN" 
+                ? 
+                <Badge
+                    variant="destructive"
+                    className="ml-6 px-3 py-1 text-sm rounded-full w-[70px]"
+                >Admin
+                </Badge> 
+                :
+                ""
+            }
                 <div className="flex ml-20 gap-5">
                     <Link
                         href="/dashboard"
@@ -44,7 +59,19 @@ export const Navbar = () => {
             </SheetTrigger>
             <SheetContent side="left">
                 <nav className="grid gap-6 text-lg font-medium">
-                <LogoLink />
+                <div className="w-fuill justify-between">
+                    <LogoLink/>
+                    {role === "ADMIN" 
+                        ? 
+                        <Badge
+                            variant="destructive"
+                            className="ml-6 px-3 py-1 text-sm rounded-full w-[70px]"
+                        >Admin
+                        </Badge> 
+                        :
+                        ""
+                    }
+                </div>
                 <Link
                     href="#"
                     className="text-muted-foreground hover:text-foreground"

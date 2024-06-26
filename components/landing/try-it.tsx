@@ -115,9 +115,7 @@ export const TryIt = () => {
                   </TableCell>
                   <TableCell>
                     {place.email ? (
-                      <Link href={`mailto:${place.email}`}>
-                        <Mail className='cursor-pointer text-muted-foreground'/>
-                      </Link>
+                      place.email
                     ) : (
                       <span>No</span>
                     )}
