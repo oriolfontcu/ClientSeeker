@@ -7,7 +7,6 @@ const API_KEY = process.env.GOOGLE_API_KEY;
 
 interface Place {
   place_id: string;
-  formatted_phone_number?: string;
   name: string;
   geometry: {
     location: {
@@ -15,6 +14,11 @@ interface Place {
       lng: number;
     };
   };
+  formatted_phone_number?: string;
+  formatted_address?: string;
+  website?: string;
+  rating?: number;
+  user_ratings_total?: number;
 }
 
 const getCoordinates = async (location: string) => {
@@ -45,29 +49,15 @@ const generateSubRegions = (lat: number, lng: number, distance: number = 0.1) =>
   return subRegions;
 };
 
-const fetchPlaceDetails = async (placeId: string) => {
-  const response = await axios.get('https://maps.googleapis.com/maps/api/place/details/json', {
-    params: {
-      place_id: placeId,
-      fields: 'formatted_phone_number,formatted_address,website',
-      key: API_KEY,
-    },
-  });
-  return response.data.result;
-};
-
 const fetchPlacesInSubRegions = async (subRegions: { lat: number, lng: number }[], sector: string, limit: number, isTesting: boolean) => {
   let allPlaces: any[] = [];
-  let nextPageToken = null;
-
   let foundPlacesQty = 0;
-  const requestLimit = limit; // Puedes ajustar este límite según tus necesidades
-
+  const requestLimit = limit;
   let subRegionIndex = 0;
+  const seenPlaceIds = new Set();
 
   do {
     if (foundPlacesQty >= requestLimit) {
-      // Si se han procesado todas las subregiones, detén el ciclo
       break;
     }
 
@@ -79,8 +69,11 @@ const fetchPlacesInSubRegions = async (subRegions: { lat: number, lng: number }[
         radius: 30000,
         keyword: sector,
         key: API_KEY,
+        fields: 'place_id,name,formatted_phone_number,formatted_address,website,rating,user_ratings_total'
       },
     });
+
+    console.log(response);
 
     const places = response.data.results as Place[];
     const placesWithDetails = [];
@@ -90,30 +83,31 @@ const fetchPlacesInSubRegions = async (subRegions: { lat: number, lng: number }[
         break;
       }
 
-      const details = await fetchPlaceDetails(place.place_id);
+      if (seenPlaceIds.has(place.place_id)) {
+        continue;  // Skip duplicates
+      }
+
+      seenPlaceIds.add(place.place_id);
 
       placesWithDetails.push({
-        ...place,
-        formatted_phone_number: details.formatted_phone_number || 'No disponible',
-        formatted_address: details.formatted_address || 'No disponible',
-        website: details.website || null
+        place_id: place.place_id,
+        name: place.name,
+        formatted_phone_number: place.formatted_phone_number || 'No disponible',
+        formatted_address: place.formatted_address || 'No disponible',
+        website: place.website || null,
+        rating: place.rating || null,
+        user_ratings_total: place.user_ratings_total || null,
       });
 
-      console.log(requestLimit, foundPlacesQty, places.length)
       foundPlacesQty++;
     }
 
     allPlaces = [...allPlaces, ...placesWithDetails];
-    nextPageToken = response.data.next_page_token; // Actualiza el token para la próxima página
 
-    if (!nextPageToken) {
-      // Si no hay más páginas, pasa a la siguiente subregión
-      subRegionIndex++;
-    }
-  
-  } while (foundPlacesQty < requestLimit);
+    subRegionIndex++;
+  } while (foundPlacesQty < requestLimit && subRegionIndex < subRegions.length);
 
-  return isTesting ? allPlaces.slice(0, 1) : allPlaces;
+  return isTesting ? allPlaces.slice(0, 1) : allPlaces.slice(0, requestLimit);
 };
 
 const processPlaces = async (places: any[], website: string, mail: string) => {
