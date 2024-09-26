@@ -1,190 +1,109 @@
+import { scrapeEmails } from '@/lib/scrapeEmails';
 import { NextRequest, NextResponse } from 'next/server';
-import axios from 'axios';
-import { scrapeEmails } from '../../../lib/scrapeEmails';
-import { scrapeSocialMedia } from '../../../lib/scrapeSocialMedia';
+import puppeteer from 'puppeteer';
 
-const API_KEY = process.env.GOOGLE_API_KEY;
-
-interface Place {
-  place_id: string;
-  name: string;
-  geometry: {
-    location: {
-      lat: number;
-      lng: number;
-    };
-  };
-  formatted_phone_number?: string;
-  formatted_address?: string;
-  website?: string;
-  rating?: number;
-  user_ratings_total?: number;
-}
-
-const getCoordinates = async (location: string) => {
-  const response = await axios.get('https://maps.googleapis.com/maps/api/geocode/json', {
-    params: {
-      address: location,
-      key: API_KEY,
-    },
-  });
-
-  const { lat, lng } = response.data.results[0].geometry.location;
-  return { lat, lng };
-};
-
-const generateSubRegions = (lat: number, lng: number, distance: number = 0.1) => {
-  const subRegions = [];
-
-  const offsets = [-distance, 0, distance];
-
-  for (const latOffset of offsets) {
-    for (const lngOffset of offsets) {
-      if (latOffset !== 0 || lngOffset !== 0) {
-        subRegions.push({ lat: lat + latOffset, lng: lng + lngOffset });
-      }
-    }
-  }
-
-  return subRegions;
-};
-
-const fetchPlacesInSubRegions = async (subRegions: { lat: number, lng: number }[], sector: string, limit: number, isTesting: boolean) => {
-  let allPlaces: any[] = [];
-  let foundPlacesQty = 0;
-  const requestLimit = limit;
-  let subRegionIndex = 0;
-  const seenPlaceIds = new Set();
-
-  do {
-    if (foundPlacesQty >= requestLimit) {
-      break;
-    }
-
-    const { lat, lng } = subRegions[subRegionIndex];
-
-    const response = await axios.get('https://maps.googleapis.com/maps/api/place/nearbysearch/json', {
-      params: {
-        location: `${lat},${lng}`,
-        radius: 30000,
-        keyword: sector,
-        key: API_KEY,
-        fields: 'place_id,name,formatted_phone_number,formatted_address,website,rating,user_ratings_total'
-      },
-    });
-
-    console.log(response);
-
-    const places = response.data.results as Place[];
-    const placesWithDetails = [];
-
-    for (const place of places) {
-      if (foundPlacesQty >= requestLimit) {
-        break;
-      }
-
-      if (seenPlaceIds.has(place.place_id)) {
-        continue;  // Skip duplicates
-      }
-
-      seenPlaceIds.add(place.place_id);
-
-      placesWithDetails.push({
-        place_id: place.place_id,
-        name: place.name,
-        formatted_phone_number: place.formatted_phone_number || 'No disponible',
-        formatted_address: place.formatted_address || 'No disponible',
-        website: place.website || null,
-        rating: place.rating || null,
-        user_ratings_total: place.user_ratings_total || null,
-      });
-
-      foundPlacesQty++;
-    }
-
-    allPlaces = [...allPlaces, ...placesWithDetails];
-
-    subRegionIndex++;
-  } while (foundPlacesQty < requestLimit && subRegionIndex < subRegions.length);
-
-  return isTesting ? allPlaces.slice(0, 1) : allPlaces.slice(0, requestLimit);
-};
-
-const processPlaces = async (places: any[], website: string, mail: string) => {
-  const processedPlaces = await Promise.all(places.map(async place => {
-    let potentialClientRating: 'Low' | 'Mid' | 'High' = 'Low';
-    if (place.rating && place.user_ratings_total) {
-      if (place.rating >= 4 && place.user_ratings_total >= 50) {
-        potentialClientRating = 'High';
-      } else if (place.rating >= 3 && place.user_ratings_total >= 20) {
-        potentialClientRating = 'Mid';
-      }
-    }
-
-    let email: string | null = null;
-    let socialMedia: any = {};
-    if (place.website) {
-      email = await scrapeEmails(place.website);
-      socialMedia = await scrapeSocialMedia(place.website);
-    }
-
-    return {
-      name: place.name,
-      formatted_address: place.formatted_address,
-      formatted_phone_number: place.formatted_phone_number,
-      website: place.website || null,
-      rating: place.rating || null,
-      user_ratings_total: place.user_ratings_total || null,
-      potentialClientRating,
-      email,
-      socialMedia,
-    };
-  }));
-
-  let filteredPlaces = processedPlaces;
-
-  if (website === 'with') {
-    filteredPlaces = filteredPlaces.filter(place => place.website);
-  } else if (website === 'without') {
-    filteredPlaces = filteredPlaces.filter(place => !place.website);
-  }
-
-  if (mail === 'with-mail') {
-    filteredPlaces = filteredPlaces.filter(place => place.email);
-  } else if (mail === 'without-mail') {
-    filteredPlaces = filteredPlaces.filter(place => !place.email);
-  }
-
-  return filteredPlaces;
-};
-
+// Handler para el método GET
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const location = searchParams.get('location');
-  const sector = searchParams.get('sector');
-  const isTesting = searchParams.get('isTesting') === 'true';
-  const website = searchParams.get('website') || 'all';
-  const mail = searchParams.get('mail') || 'all-mail';
-  const limit = searchParams.get('limit');
+  const negocio = searchParams.get('negocio') || null;
+  const localizacion = searchParams.get('localizacion') || null;
 
-  if (!location || !sector || !limit) {
-    return NextResponse.json({ error: 'Missing location, sector parameter or leads quantity' }, { status: 400 });
+  if (localizacion === null || negocio === null) {
+    return NextResponse.json({ error: 'Missing location, sector parameter.' }, { status: 400 });
   }
 
   try {
-    const { lat, lng } = await getCoordinates(location);
-    const subRegions = generateSubRegions(lat, lng);
-    const places = await fetchPlacesInSubRegions(subRegions, sector, Number(limit), isTesting);
+    const browser = await puppeteer.launch({ headless: false });
+    const page = await browser.newPage();
 
-    const processedData = await processPlaces(places, website, mail);
+    // Navegar a la página de Paginas Amarillas
+    await page.goto('https://www.paginasamarillas.es/', { waitUntil: 'networkidle2' });
 
-    if (website === 'without' && mail === 'with-mail'){
-      return NextResponse.json({ error: 'Oops! We need a website to find emails' }, { status: 400 });
+    await page.waitForSelector('input[name="whatInput"]', { visible: true });
+    await page.waitForSelector('input[name="whereInput"]', { visible: true });
+    await page.waitForSelector('button[name="submitBtn"]', { visible: true });
+
+    await page.type('input[name="whatInput"]', negocio, { delay: 100 });
+    // Escribir en el campo "Dónde" (localización)
+    await page.type('input[name="whereInput"]', localizacion, { delay: 100 });
+    // Hacer clic en el botón de búsqueda
+    await page.click('button[name="submitBtn"]');
+
+    // Lógica de scraping...
+
+    let allBusinessInfo: any[] = [];
+    let hasNextPage = true;
+
+    while (hasNextPage) {
+      await page.waitForSelector('.first-content-listado', { timeout: 10000 });
+
+      const businessLinks = await page.evaluate(() => {
+        const links: { url: string; name: string }[] = [];
+        document.querySelectorAll('.box[itemprop="item"] a[data-omniclick="name"]').forEach((link) => {
+          links.push({
+            url: (link as HTMLAnchorElement).href,
+            name: (link.querySelector('span[itemprop="name"]') as HTMLElement)?.textContent?.trim() || ''
+          });
+        });
+        return links;
+      });
+
+      // Procesar cada negocio y extraer información...
+      for (const { url, name } of businessLinks) {
+        await page.goto(url, { waitUntil: 'networkidle2' });
+
+        // Extraer la información del negocio desde su página de detalles en Paginas Amarillas
+        const businessDetail = await page.evaluate(async () => {
+          const street = document.querySelector('span[itemprop="streetAddress"]')?.textContent?.trim() || '';
+          const postalCode = document.querySelector('span[itemprop="postalCode"]')?.textContent?.trim() || '';
+          const locality = document.querySelector('span[itemprop="addressLocality"]')?.textContent?.trim() || '';
+          const phone = document.querySelector('span[itemprop="telephone"]')?.textContent?.trim() || 'No phone available';
+          let website = (document.querySelector('a[itemprop="url"]') as HTMLAnchorElement)?.href || 'No tiene sitio web';
+          website = website.split("?")[0];
+          const description = document.querySelector('div[itemprop="description"]')?.textContent?.trim() || '';
+
+          return {
+            address: `${street}, ${postalCode}, ${locality}`,
+            phone,
+            website,
+            description,
+          };
+        });
+
+        let email = null;
+        if (businessDetail.website !== 'No tiene sitio web') {
+          try{
+            email = await scrapeEmails(businessDetail.website);
+          } catch (error) {
+            console.error(`Error scraping email from ${businessDetail.website}:`, error);
+          }
+        }
+
+        // Agregar la información del negocio a la lista global
+        allBusinessInfo.push({
+          name,
+          ...businessDetail,
+          email,
+        });
+      }
+
+      // Verificar si hay una página siguiente
+      const nextPageLink = await page.$('ul.pagination li a i.icon-flecha-derecha');
+      if (nextPageLink) {
+        const nextPageUrl = await page.evaluate((el) => (el.parentElement as HTMLAnchorElement).href, nextPageLink);
+        await page.goto(nextPageUrl, { waitUntil: 'networkidle2' });
+      } else {
+        hasNextPage = false;
+      }
     }
 
-    return NextResponse.json(processedData, { status: 200 });
-  } catch (error: any) {
-    console.error("Error fetching business details:", error);
-    return NextResponse.json({ error: "Failed to fetch business details", details: error.message }, { status: 500 });
+    await browser.close();
+
+    // Devolver datos en JSON
+    return NextResponse.json(allBusinessInfo);
+
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ error: 'Ocurrió un error al realizar el scraping.' }, { status: 500 });
   }
 }

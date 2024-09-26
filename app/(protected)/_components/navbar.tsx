@@ -24,7 +24,7 @@ export const Navbar = () => {
     const pathname = usePathname()
 
     return (
-        <header className="bg-secondary w-full sticky top-0 flex items-center  border-b md:px-6 shadow-md p-6">
+        <header className="bg-secondary w-full top-0 flex items-center  border-b md:px-6 shadow-md p-6">
             <nav className="hidden flex-col text-lg font-medium md:flex md:flex-row md:items-center md:text-sm">
             <LogoLink />
             {role === "ADMIN" 
